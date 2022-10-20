@@ -51,7 +51,6 @@ public class Pelicula implements Comparable<Pelicula> {
         return year;
     }
     
-    
     public static Pelicula[] LeerCSV(String ruta) throws ParseException{
         
         List<Pelicula> listaP = new ArrayList<Pelicula>();
@@ -108,35 +107,44 @@ public class Pelicula implements Comparable<Pelicula> {
         return vectorP;
     }
     
-    public BST<Integer, Bag<Pelicula>> clasificarPorAño(Pelicula[] peliculas){
+    public static BST<Integer, Bag<Pelicula>> clasificarPorAño(Pelicula[] peliculas){
         
         BST<Integer, Bag<Pelicula>> peliculaporaño = new BST<>();
         Bag<Pelicula> bpeliculas = new Bag<>();;
         
         
         for(int i = 0; i < peliculas.length; i++){
-            if(!peliculaporaño.contains(peliculas[i].year))
-                peliculaporaño.put(peliculas[i].year, null);
-            //bpeliculas.add(peliculas[i]);
-        }
-        
-        for(Pelicula p : bpeliculas){
-            peliculaporaño.put(p.year, bpeliculas);
+            if(!peliculaporaño.contains(peliculas[i].year)){
+               peliculaporaño.put(peliculas[i].year, new Bag<Pelicula>());
+            }
+            peliculaporaño.get(peliculas[i].year).add(peliculas[i]);
         }
         
         return peliculaporaño;
     }
-    public BST<Integer, MinPQ<Pelicula>> topMxAño(BST<Integer, Bag<Pelicula>> pelXaño,int m){
+    public static BST<Integer, MinPQ<Pelicula>> topMxAño(BST<Integer, Bag<Pelicula>> pelXaño,int m){
         MinPQ<Pelicula> cola = new MinPQ();
         BST<Integer, MinPQ<Pelicula>> Top = new BST<>();
-        Bag<Pelicula> bolsa = new Bag<>();
         
-        for(int i = 0; i < m; i++){
-           bolsa=pelXaño.get(pelXaño.select(i));
-        }
-        for(int i = m; i < pelXaño.get(1).size(); i++){
-            
-        }
+        Iterable<Integer> item = pelXaño.keys();
+        
+            for(Integer x: item){//recorre todas las llaves
+                cola = new MinPQ();
+                for(Pelicula p: pelXaño.get(x)){//recorre todas las peliculas
+                    cola.insert(p);
+                    if(cola.size()==m){
+                        if(p.compareTo(cola.min())>0){
+                            
+                           cola.delMin();
+                           cola.insert(p);
+                        }
+                    }
+               }
+               Top.put(x, cola);
+            }
+           
+        
+        return Top;
     }
     @Override
     public int compareTo(Pelicula o) {
